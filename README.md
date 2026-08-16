@@ -165,6 +165,15 @@ When a slot is not available, the task is not marked as **`FAILED`** — it is m
 
 ## 4. LLM Analyzer & MCP Integration
 
+### LangSmith Observability & Tracing
+
+The entire LLM pipeline is instrumented with **LangSmith**. By setting `LANGSMITH_TRACING=true` in your `.env`, every single AI call is automatically logged to [smith.langchain.com](https://smith.langchain.com). 
+
+This allows you to track:
+- **Exact Prompts & Responses**: See the exact JSON payload sent to the LLM and the raw output returned.
+- **Latency & Token Usage**: Monitor how long each diagnosis takes and how many tokens it consumes for cost tracking.
+- **Validation Errors**: If the LLM hallucinates or breaks the Pydantic schema, you can trace the exact validation error and the subsequent retry.
+
 ### How the Analysis Works
 
 When Task B determines that a rank drop warrants investigation, the `llm/intent_analyzer.py` module takes over. It loads two SERP snapshots from the database:

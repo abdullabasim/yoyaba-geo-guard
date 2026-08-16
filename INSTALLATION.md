@@ -72,6 +72,16 @@ All configuration for every service lives in a single `.env` file at the project
 
 > Leave `OPENAI_API_KEY` empty to disable AI analysis. SERP data will still be fetched and stored.
 
+### LangSmith (for LLM Tracing & Observability)
+| Variable | Purpose |
+|---|---|
+| `LANGSMITH_TRACING` | Set to `true` to enable tracing |
+| `LANGSMITH_ENDPOINT` | LangSmith API endpoint (default: `https://api.smith.langchain.com`) |
+| `LANGSMITH_API_KEY` | Your LangSmith API key |
+| `LANGSMITH_PROJECT` | Project name in LangSmith (e.g., `seo-intent-shift-production`) |
+
+> You can monitor all AI decisions, token usage, and prompt evaluations by logging into [smith.langchain.com](https://smith.langchain.com) using the project name you specify here.
+
 ### Slack (for alerts & notifications)
 | Variable | Purpose |
 |---|---|

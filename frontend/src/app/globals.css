@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light dark;
+}
+
+/* Light mode base */
+body {
+  font-family: 'Mulish', 'ui-sans-serif', system-ui, -apple-system, sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  @apply bg-slate-50 text-slate-900 antialiased transition-colors duration-200;
+}
+
+/* Dark mode base — applied when html.dark */
+html.dark body {
+  /* The dark base color */
+  background-color: #0d0e12;
+  color: #f0f0f0;
+  font-weight: 700;
+  font-size: 16px;
+  
+  /* The combination of the radial glow and the grid lines */
+  background-image: 
+    /* 1. The Teal Glow (Centered near the top) */
+    radial-gradient(circle at 40% 10%, #0f2a36 0%, transparent 50%),
+    
+    /* 2. Horizontal Grid Lines */
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    
+    /* 3. Vertical Grid Lines */
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    
+  /* Set the size of the grid squares */
+  background-size: 100% 100%, 60px 60px, 60px 60px;
+}
+
+/* Global heading font — Bebas Neue like YOYABA */
+h1, h2, h3 {
+  font-family: 'Bebas Neue', 'ui-sans-serif', sans-serif;
+  letter-spacing: 0.03em;
+}
+
+
+/* Keep numeric columns aligned in the data tables. */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+

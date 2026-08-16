@@ -1,0 +1,165 @@
+####################################################################
+# SEO Intent Shift Detection — full stack
+#
+# Every service below belongs to this project only. Host ports are
+# deliberately non-default so this stack cannot collide with other
+# services running on the same machine.
+#
+#   postgres  -> 55432
+#   redis     -> 56379
+#   backend   -> 8100
+#   mcp       -> 8110
+#   frontend  -> 3100
+#
+# Usage:  docker compose up -d --build
+####################################################################
+
+name: seo-intent-shift
+
+x-backend-base: &backend-base
+  build:
+    context: ./backend
+    dockerfile: Dockerfile
+  env_file:
+    - .env
+  volumes:
+    - ./backend:/app
+  depends_on:
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+  restart: unless-stopped
+
+services:
+  # ----------------------------------------------------------------
+  # Data stores
+  # ----------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: seo-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      # Keeps timestamps unambiguous end to end.
+      PGTZ: UTC
+    ports:
+      - "${POSTGRES_HOST_PORT:-55432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: seo-redis
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "${REDIS_HOST_PORT:-56379}:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  # ----------------------------------------------------------------
+  # Backend API
+  # ----------------------------------------------------------------
+  backend:
+    <<: *backend-base
+    image: seo-intent-backend:latest
+    container_name: seo-backend
+    command: >
+      sh -c "alembic upgrade head &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000 --proxy-headers"
+    ports:
+      - "${BACKEND_HOST_PORT:-8100}:8000"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3).status == 200 else 1)\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  # ----------------------------------------------------------------
+  # Celery worker — executes Task A (fetch) and Task B (analyze)
+  # ----------------------------------------------------------------
+  worker:
+    <<: *backend-base
+    container_name: seo-worker
+    command: >
+      celery -A app.core.celery_app.celery_app worker
+             --loglevel=info
+             --concurrency=4
+             --pool=prefork
+             --max-tasks-per-child=200
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      backend:
+        condition: service_started
+
+  # ----------------------------------------------------------------
+  # Celery beat — periodically dispatches due checks
+  # ----------------------------------------------------------------
+  beat:
+    <<: *backend-base
+    container_name: seo-beat
+    command: >
+      celery -A app.core.celery_app.celery_app beat
+             --loglevel=info
+             --schedule=/tmp/celerybeat-schedule
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      backend:
+        condition: service_started
+
+  # ----------------------------------------------------------------
+  # MCP server — exposes ranking history as an LLM tool
+  # ----------------------------------------------------------------
+  mcp:
+    <<: *backend-base
+    container_name: seo-mcp
+    command: >
+      python -m app.mcp_server --transport http --host 0.0.0.0 --port 8110
+    ports:
+      - "${MCP_HOST_PORT:-8110}:8110"
+
+  # ----------------------------------------------------------------
+  # Frontend dashboard
+  # ----------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+    image: seo-intent-frontend:latest
+    container_name: seo-frontend
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      INTERNAL_API_URL: ${INTERNAL_API_URL}
+      NODE_ENV: production
+    ports:
+      - "${FRONTEND_HOST_PORT:-3100}:3000"
+    depends_on:
+      backend:
+        condition: service_started
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+  redis-data:

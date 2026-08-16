@@ -4,6 +4,8 @@ A production-grade, microservice-based SEO monitoring and intent-shift diagnosis
 
 *(For environment setup, local development, and Docker deployment, see [INSTALLATION.md](./INSTALLATION.md))*
 
+🎥 **UI Demo & Walkthrough**: [Watch on YouTube](https://www.youtube.com/watch?v=GPW9c5z1XZI)
+
 ---
 
 ## 1. System Architecture & Core Stack

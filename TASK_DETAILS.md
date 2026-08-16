@@ -79,7 +79,7 @@ To support an enterprise scale with thousands of indexable pages, high-frequency
 #### 2. Multi-Agent AI Workflow (LangGraph-Style Nodes)
 The AI architecture is structured as a multi-node agentic workflow, where each node has a specific responsibility, ensuring maximum precision and reducing hallucinations.
 
-- **Primary Diagnostic Node:** When a rank drop is detected, the initial data (historical SERP JSON vs. current SERP JSON) is routed to the first LLM node. This agent parses the delta and generates the initial structured diagnosis (e.g., categorizing the drop as an "Intent Shift" vs. "Technical Regression").
+- **Primary Diagnostic Node:** When a rank drop is detected, the initial data (historical SERP JSON, current SERP JSON, and crawl logs) is routed to the first LLM node. This agent parses the delta and generates the initial structured diagnosis. It distinguishes algorithmic "Intent Shifts" from "Technical Regressions" (e.g., accidental noindex tags, broken internal links, keyword cannibalization).
 - **Double-Check Validation Node:** To ensure 100% accuracy, the output of the first model is piped into a secondary, independent LLM node (often utilizing a different model entirely). This validator node acts as an automated critic, verifying the logic and strict JSON schema of the first model. If discrepancies are found, the data is pushed back for correction.
 - **LangSmith Tracing & Agent Monitoring:** Every step of this multi-agent workflow is heavily instrumented using **LangSmith**. This provides a centralized observability platform to monitor the agent's decision-making process, track token consumption, evaluate latency, and review the exact prompts and validation loops in real-time.
 

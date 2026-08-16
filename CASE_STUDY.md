@@ -291,7 +291,7 @@ The full implementation, code files, installation guide, and deployment instruct
   1. Celery worker executes `fetch_serp_data` for the target URL and keyword.
   2. Pulls live SERP metrics via **DataForSEO API** (or mock SERP JSON in test environments).
   3. Resolves current position (Rank 9) and retrieves historical baseline (Rank 2) from PostgreSQL `rankings_history`.
-  4. Calculates drop delta ($9 - 2 = 7$). Since $7 \ge \text{rank\_drop\_threshold}$ ($3$), Task A triggers Task B (`analyze_intent_shift`).
+  4. Calculates drop delta (9 - 2 = 7). Since 7 &ge; `rank_drop_threshold` (3), Task A triggers Task B (`analyze_intent_shift`).
 
 ---
 

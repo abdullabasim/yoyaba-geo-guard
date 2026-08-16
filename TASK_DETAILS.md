@@ -47,15 +47,23 @@ Imagine we are onboarding a new enterprise client with 5,000+ indexable pages, f
 
 ### 2. AI Integration (Multi-Node LangGraph Architecture)
 
-LLMs sit firmly in the Enrichment and Diagnostic layers. They do not execute the raw data collection. Instead, the AI architecture is structured as a multi-node agentic workflow (similar to **LangGraph**), where each node has exactly one specific responsibility:
+LLMs sit firmly in the Enrichment and Diagnostic layers. They do not execute the raw data collection. Instead, the AI architecture is structured as a multi-node agentic workflow (similar to **LangGraph**), where each node has exactly one specific responsibility. **Crucially, this system is not just reactive; it is predictive.** The agent evaluates crawl data and SERP volatility to predict traffic drops *before* they happen, allowing teams to resolve the root cause proactively.
 
-1. **Rank Drop Diagnostic Node:** When a drop is detected, this agent parses the delta between historical and current SERP JSONs to classify algorithmic "Intent Shifts" vs. technical issues.
+1. **Proactive & Reactive Diagnostic Node:** When a technical anomaly is crawled (predictive) or a rank drop is detected (reactive), this agent parses the data to classify algorithmic "Intent Shifts" vs. technical issues.
 2. **HTML & Tag Analysis Node:** This agent specifically analyzes the raw HTML data and server logs. It explicitly looks for technical regressions (e.g., accidental `noindex` tags, broken internal links, missing canonicals) and flags exactly what broke.
 3. **Content Cannibalization Node:** This agent compares the dropping URL against other URLs on the same domain to detect duplication of content and keyword cannibalization conflicts.
 4. **Content Quality & Enhancement Node:** This agent assesses the quality of the content against the top-ranking competitors. It generates actionable advice on how the content can be enhanced (e.g., adding missing semantic entities, improving readability, or restructuring headers).
 5. **Double-Check Validation Node:** To ensure 100% accuracy, the final output is piped into an independent LLM node (utilizing a different model). This validator node acts as a critic, double-checking the first model's logic and enforcing the strict JSON schema. If discrepancies are found, it triggers a correction loop.
 
-Every single step of this multi-agent workflow is heavily instrumented using **LangSmith**. This provides a centralized platform to monitor the agent's decision-making process, track token consumption, and review exact prompts in real-time.
+Every single step of this multi-agent workflow is heavily instrumented using **LangSmith** (or **Langfuse**). This provides a centralized platform to monitor the agent's decision-making process, track token consumption, and review exact prompts in real-time.
+
+### 2.5 Technical System Design (The Engine)
+
+To support this multi-node predictive architecture, the underlying system design relies on a highly decoupled microservice pattern:
+- **API Gateway (FastAPI):** Handles incoming webhook events from crawlers, validates all JSON payloads using strict Pydantic V2 schemas, and pushes jobs to the message broker.
+- **Message Broker (Redis):** Acts as the high-throughput queue, utilizing topic exchanges to route specific crawl results or SERP anomalies to the correct Celery worker queues.
+- **Worker Fleet (Celery):** Scalable Python workers that execute the tasks. IO-bound workers handle DataForSEO polling, while compute/network-bound workers execute the LangGraph LLM nodes.
+- **State Store (PostgreSQL):** Utilizes heavily indexed `JSONB` columns to store massive, schema-less historical SERP snapshots, allowing the AI agents to instantly query "point-in-time" historical data to calculate deltas.
 
 ### 3. Robustness & Observability
 

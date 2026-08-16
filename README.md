@@ -4,7 +4,7 @@ A production-grade, microservice-based SEO monitoring and intent-shift diagnosis
 
 *(For environment setup, local development, and Docker deployment, see [INSTALLATION.md](./INSTALLATION.md))*
 
-🎥 **UI Demo & Walkthrough**: <a href="https://youtu.be/gi7ouQmhXZk" target="_blank" rel="noopener noreferrer">Watch on YouTube</a>
+**UI Demo & Walkthrough**: <a href="https://youtu.be/gi7ouQmhXZk" target="_blank" rel="noopener noreferrer">Watch on YouTube</a>
 
 ---
 

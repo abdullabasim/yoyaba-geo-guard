@@ -278,7 +278,7 @@ Rather than presenting theoretical snippets or static mock files, we built and d
 
 The full implementation, code files, installation guide, and deployment instructions are documented in [README.md](https://github.com/abdullabasim/yoyaba-geo-guard/blob/main/README.md).
 
-🎥 **Live Platform Demo & Video Walkthrough:** <a href="https://youtu.be/gi7ouQmhXZk" target="_blank" rel="noopener noreferrer">Watch on YouTube</a>
+**Live Platform Demo & Video Walkthrough:** <a href="https://youtu.be/gi7ouQmhXZk" target="_blank" rel="noopener noreferrer">Watch on YouTube</a>
 
 ---
 

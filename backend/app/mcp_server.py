@@ -230,7 +230,7 @@ async def list_tracked_urls(client_name: str | None = None) -> dict[str, Any]:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="SEO Intent Shift MCP server")
+    parser = argparse.ArgumentParser(description="YOYABA GEO Guard MCP server")
     parser.add_argument(
         "--transport",
         choices=["stdio", "http", "sse"],

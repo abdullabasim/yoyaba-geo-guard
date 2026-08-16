@@ -1,6 +1,6 @@
 # Installation & Setup Guide
 
-This guide walks you through setting up the SEO Intent Shift Detection platform from scratch. The entire system — database, backend API, background workers, and frontend dashboard — runs inside **Docker containers**, so Docker is the only tool you need installed on your machine.
+This guide walks you through setting up the YOYABA GEO Guard platform from scratch. The entire system — database, backend API, background workers, and frontend dashboard — runs inside **Docker containers**, so Docker is the only tool you need installed on your machine.
 
 ---
 
@@ -78,10 +78,10 @@ All configuration for every service lives in a single `.env` file at the project
 ### Demo Data
 | Variable | Default | Purpose |
 |---|---|---|
-| `SEED_DEMO_DATA` | `true` | Automatically seeds 3 demo clients, 5 projects, and 11 URLs on first start |
-| `SEED_DEMO_HISTORY` | `true` | Generates ~45 days of backdated rank history (no API calls needed, runs offline) |
+| `SEED_DEMO_DATA` | `false` | Automatically seeds 3 demo clients, 5 projects, and 11 URLs on first start |
+| `SEED_DEMO_HISTORY` | `false` | Generates ~45 days of backdated rank history (no API calls needed, runs offline) |
 
-> Set both to `false` for a clean production deployment.
+> Set both to `true` if you want to populate the database with dummy data during initial testing.
 
 ### Rate Control
 | Variable | Default | Purpose |

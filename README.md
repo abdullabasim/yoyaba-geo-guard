@@ -1,4 +1,4 @@
-# SEO Intent Shift Detection & Autonomous Monitoring Platform
+# YOYABA GEO Guard & Autonomous Monitoring Platform
 
 A production-grade, microservice-based SEO monitoring and intent-shift diagnosis system. Built with **Next.js (App Router)**, **FastAPI**, **PostgreSQL**, **Redis**, **Celery**, and **FastMCP**.
 

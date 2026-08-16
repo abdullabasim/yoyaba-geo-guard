@@ -1,3 +1,3 @@
-"""SEO Intent Shift Detection backend."""
+"""YOYABA GEO Guard backend."""
 
 __version__ = "1.0.0"

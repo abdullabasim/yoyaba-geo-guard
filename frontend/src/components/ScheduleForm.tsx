@@ -171,7 +171,7 @@ export function ScheduleForm({
           </div>
           <div>
             <Label htmlFor="sched-time" required={!inherit}>
-              Execution Time (Local)
+              Local Time
             </Label>
             <Input
               id="sched-time"

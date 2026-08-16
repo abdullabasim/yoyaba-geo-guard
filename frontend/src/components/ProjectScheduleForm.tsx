@@ -122,7 +122,7 @@ export function ProjectScheduleForm({
         </Badge>
       </div>
 
-      <div className="grid items-start gap-4 sm:grid-cols-5">
+      <div className="grid items-start gap-4 sm:grid-cols-3">
         <div>
           <Label htmlFor={`p-interval-${schedule.project_id}`} required>Interval</Label>
           <Select
@@ -143,7 +143,7 @@ export function ProjectScheduleForm({
         </div>
 
         <div>
-          <Label htmlFor={`p-time-${schedule.project_id}`} required>Execution Time (Local)</Label>
+          <Label htmlFor={`p-time-${schedule.project_id}`} required>Local Time</Label>
           <Input
             id={`p-time-${schedule.project_id}`}
             name="default_execution_time"
@@ -175,7 +175,9 @@ export function ProjectScheduleForm({
           </Select>
           <FieldError message={fieldErrors.default_timezone} />
         </div>
+      </div>
 
+      <div className="grid items-start gap-4 sm:grid-cols-2">
         <div>
           <Label htmlFor={`p-threshold-${schedule.project_id}`} required>Rank Drop Trigger</Label>
           <Input

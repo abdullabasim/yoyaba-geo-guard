@@ -27,7 +27,13 @@ You should see Docker version `24+` and Compose version `2+`.
 
 ## Step 1 — Clone & Configure Environment
 
-Copy the example environment file:
+First, clone the repository to your local machine and enter the directory:
+```bash
+git clone https://github.com/abdullabasim/yoyaba-geo-guard.git
+cd yoyaba-geo-guard
+```
+
+Next, copy the example environment file:
 ```bash
 cp .env.example .env
 ```

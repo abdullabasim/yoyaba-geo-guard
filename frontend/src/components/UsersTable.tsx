@@ -48,6 +48,22 @@ export function UsersTable({
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [editEmail, setEditEmail] = useState('');
+  const [editPassword, setEditPassword] = useState('');
+  const [editFullName, setEditFullName] = useState('');
+  const [editRole, setEditRole] = useState<UserRole>('read_write');
+  const [editFieldErrors, setEditFieldErrors] = useState<Record<string, string>>({});
+
+  function openEditModal(user: User) {
+    setEditingUser(user);
+    setEditEmail(user.email);
+    setEditFullName(user.full_name || '');
+    setEditPassword('');
+    setEditRole(user.is_superuser ? 'read_write' : user.role);
+    setEditFieldErrors({});
+  }
+
   const isCurrentUserReadOnly = currentUser.role === 'read_only' || (!currentUser.is_superuser && currentUser.role !== 'read_write');
 
   async function fetchPage(targetPage: number, targetSize: number) {
@@ -123,6 +139,34 @@ export function UsersTable({
         setFieldErrors(caught.fieldErrors);
       }
       setError(caught instanceof Error ? caught.message : 'Failed to create user');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleEdit(event: React.FormEvent) {
+    event.preventDefault();
+    if (!editingUser) return;
+    setSaving(true);
+    setError(null);
+    setEditFieldErrors({});
+    try {
+      const payload: any = {
+        email: editEmail,
+        full_name: editFullName || null,
+        role: editRole,
+      };
+      if (editPassword) {
+        payload.password = editPassword;
+      }
+      await usersApi.update(editingUser.id, payload);
+      setEditingUser(null);
+      await fetchPage(page, pageSize);
+    } catch (caught) {
+      if (caught instanceof ApiError && caught.fieldErrors) {
+        setEditFieldErrors(caught.fieldErrors);
+      }
+      setError(caught instanceof Error ? caught.message : 'Failed to update user');
     } finally {
       setSaving(false);
     }
@@ -289,21 +333,31 @@ export function UsersTable({
                       </div>
                     </TD>
                     <TD align="right">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => void handleDelete(user)}
-                        disabled={isMain || user.id === currentUser.id || isCurrentUserReadOnly}
-                        title={
-                          isMain
-                            ? 'Main admin account cannot be deleted'
-                            : user.id === currentUser.id
-                            ? 'Cannot delete logged in account'
-                            : 'Delete user'
-                        }
-                      >
-                        Delete
-                      </Button>
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => openEditModal(user)}
+                          disabled={isCurrentUserReadOnly}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => void handleDelete(user)}
+                          disabled={isMain || user.id === currentUser.id || isCurrentUserReadOnly}
+                          title={
+                            isMain
+                              ? 'Main admin account cannot be deleted'
+                              : user.id === currentUser.id
+                              ? 'Cannot delete logged in account'
+                              : 'Delete user'
+                          }
+                        >
+                          Delete
+                        </Button>
+                      </div>
                     </TD>
                   </TR>
                 );
@@ -395,6 +449,91 @@ export function UsersTable({
             <FieldError message={fieldErrors.password} />
             <p className="mt-1 text-xs text-slate-500">
               Must be at least 8 characters. The user can change this later.
+            </p>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal
+        open={!!editingUser}
+        title="Edit user"
+        onClose={() => setEditingUser(null)}
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setEditingUser(null)}>
+              Cancel
+            </Button>
+            <Button form="edit-user-form" type="submit" disabled={saving || !editEmail}>
+              {saving ? 'Saving...' : 'Save changes'}
+            </Button>
+          </>
+        }
+      >
+        <form id="edit-user-form" onSubmit={handleEdit} className="space-y-4" noValidate>
+          <div>
+            <Label htmlFor="edit-user-email" required>Email address</Label>
+            <Input
+              id="edit-user-email"
+              name="email"
+              type="email"
+              value={editEmail}
+              onChange={(event) => setEditEmail(event.target.value)}
+              placeholder="jane@example.com"
+              required
+              error={!!editFieldErrors.email}
+              className="mt-1"
+            />
+            <FieldError message={editFieldErrors.email} />
+          </div>
+          <div>
+            <Label htmlFor="edit-user-name">Full name</Label>
+            <Input
+              id="edit-user-name"
+              name="full_name"
+              type="text"
+              value={editFullName}
+              onChange={(event) => setEditFullName(event.target.value)}
+              placeholder="Jane Doe"
+              error={!!editFieldErrors.full_name}
+              className="mt-1"
+            />
+            <FieldError message={editFieldErrors.full_name} />
+          </div>
+          <div>
+            <Label htmlFor="edit-user-role" required>Role</Label>
+            <Select
+              id="edit-user-role"
+              name="role"
+              value={editRole}
+              onChange={(event) => setEditRole(event.target.value as UserRole)}
+              error={!!editFieldErrors.role}
+              className="mt-1"
+              disabled={editingUser?.is_main_account}
+            >
+              <option value="read_write">Read &amp; Write (Admin)</option>
+              <option value="read_only">Read Only</option>
+            </Select>
+            <FieldError message={editFieldErrors.role} />
+            {editingUser?.is_main_account && (
+              <p className="mt-1 text-xs text-amber-600">
+                The main admin account role cannot be changed.
+              </p>
+            )}
+          </div>
+          <div>
+            <Label htmlFor="edit-user-password">Change password</Label>
+            <Input
+              id="edit-user-password"
+              name="password"
+              type="password"
+              value={editPassword}
+              onChange={(event) => setEditPassword(event.target.value)}
+              error={!!editFieldErrors.password}
+              className="mt-1"
+            />
+            <FieldError message={editFieldErrors.password} />
+            <p className="mt-1 text-xs text-slate-500">
+              Leave blank to keep the current password. Must be at least 8 characters if provided.
             </p>
           </div>
         </form>

@@ -147,7 +147,7 @@ export function ScheduleForm({
       </label>
 
       <fieldset disabled={inherit} className={inherit ? 'opacity-50' : undefined}>
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid items-start gap-4 sm:grid-cols-3">
           <div>
             <Label htmlFor="sched-interval" required={!inherit}>
               Interval
@@ -171,7 +171,7 @@ export function ScheduleForm({
           </div>
           <div>
             <Label htmlFor="sched-time" required={!inherit}>
-              Execution Time (UTC)
+              Execution Time (Local)
             </Label>
             <Input
               id="sched-time"
@@ -208,7 +208,7 @@ export function ScheduleForm({
           </div>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 mt-4">
+        <div className="grid items-start gap-4 sm:grid-cols-2 mt-4">
           <div>
             <Label htmlFor={`drop-${targetUrl.id}`} required={!inherit}>Custom Rank Drop Trigger (positions)</Label>
             <Input

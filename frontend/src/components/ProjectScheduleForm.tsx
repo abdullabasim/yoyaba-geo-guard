@@ -122,7 +122,7 @@ export function ProjectScheduleForm({
         </Badge>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-5">
+      <div className="grid items-start gap-4 sm:grid-cols-5">
         <div>
           <Label htmlFor={`p-interval-${schedule.project_id}`} required>Interval</Label>
           <Select
@@ -143,7 +143,7 @@ export function ProjectScheduleForm({
         </div>
 
         <div>
-          <Label htmlFor={`p-time-${schedule.project_id}`} required>Execution Time (UTC)</Label>
+          <Label htmlFor={`p-time-${schedule.project_id}`} required>Execution Time (Local)</Label>
           <Input
             id={`p-time-${schedule.project_id}`}
             name="default_execution_time"
